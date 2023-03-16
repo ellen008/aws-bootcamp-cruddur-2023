@@ -62,7 +62,7 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
       AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
-      AWS_REGION: "ca-central-1"
+      AWS_REGION: "us-east-2"
     command:
       - "xray -o -b xray-daemon:2000"
     ports:
@@ -72,7 +72,7 @@ services:
 networks: 
   internal-network:
     driver: bridge
-    name: cruddur
+    name: cruddr
 
 volumes:
   db:
