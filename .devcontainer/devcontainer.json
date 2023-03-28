@@ -29,8 +29,10 @@
 				"fnando.linter"
 			]
 		}
-	}
+	},
+	"postCreateCommand": "pip3 install --user -r /workspaces/aws-bootcamp-cruddur-2023/backend-flask/requirements.txt"
 
+	
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
