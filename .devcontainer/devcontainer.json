@@ -25,10 +25,7 @@
 				"ms-python.python",
 				"mhutchie.git-graph",
 				"mark-tucker.aws-cli-configure",
-				"ms-python.pylint",
-				"fnando.linter",
-				"DavidAnson.vscode-markdownlint",
-				"dbaeumer.vscode-eslint"
+				"ms-python.pylint"
 			]
 		}
 	},
