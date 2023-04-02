@@ -3,7 +3,7 @@ from opentelemetry import trace
 
 tracer = trace.get_tracer("home.activities")
 class HomeActivities:
-    def run():
+    def run(cognito_user_id=None):
         #Logger.info("HomeActivities")
         with tracer.start_as_current_span("home-activities-mock-data"):
             span = trace.get_current_span()
@@ -40,7 +40,7 @@ class HomeActivities:
               'replies': []
             },
             {
-              'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
+              'uuid': '248959df-3079-4947-b847-9e0892d1ses4',
               'handle':  'Garek',
               'message': 'My dear doctor, I am just simple tailor',
               'created_at': (now - timedelta(hours=1)).isoformat(),
@@ -49,5 +49,18 @@ class HomeActivities:
               'replies': []
             }
             ]
+            if cognito_user_id != None:
+              extra_crud = {
+                'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
+                'handle':  'Dr Seuss',
+                'message': 'Love yourself',
+                'created_at': (now - timedelta(hours=1)).isoformat(),
+                'expires_at': (now + timedelta(hours=12)).isoformat(),
+                'likes': 258,
+                'replies': []
+              }
+            else:
+              results.insert(0, extra_crud)
+
             span.set_attribute("app.results_length", len(results) ) 
             return results
