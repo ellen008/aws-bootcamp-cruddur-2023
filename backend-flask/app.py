@@ -1,7 +1,14 @@
+import os
+import sys
+
 from flask import Flask
 from flask import request
+from flask import got_request_exception
 from flask_cors import CORS, cross_origin
-import os
+
+
+from flask_awscognito import AWSCognitoAuthentication
+from lib.cognito_jwt_tocken import CognitoJWTTocken,TokenVerifyError
 
 from services.home_activities import *
 from services.notifications_activities import *
@@ -35,7 +42,7 @@ from time import strftime
 #Rollbar
 import rollbar
 import rollbar.contrib.flask
-from flask import got_request_exception
+
 
 
 #Honeycomb init
@@ -69,6 +76,12 @@ tracer = trace.get_tracer(__name__)
 
 app = Flask(__name__)
 
+cognito_jwt_tocken = CognitoJWTTocken(
+    user_pool_id = os.getenv("AWS_COGNITO_USER_POOL_ID"),
+    user_pool_client_id =os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
+    region =os.getenv("AWS_DEFAULT_REGION")
+)
+
 #xray recorder
 #XRayMiddleware(app, xray_recorder)
 
@@ -82,8 +95,8 @@ origins = [frontend, backend]
 cors = CORS(
   app, 
   resources={r"/api/*": {"origins": origins}},
-  expose_headers="location,link",
-  allow_headers="content-type,if-modified-since",
+  headers=['Content-Type', 'Authorization'], 
+  expose_headers='Authorization',
   methods="OPTIONS,GET,HEAD,POST"
 )
 
@@ -120,96 +133,103 @@ def rollbar_test():
 
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
-  user_handle  = 'andrewbrown'
-  model = MessageGroups.run(user_handle=user_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    user_handle  = 'andrewbrown'
+    model = MessageGroups.run(user_handle=user_handle)
+    if model['errors'] is not None:
+        return model['errors'], 422
     return model['data'], 200
 
 @app.route("/api/messages/@<string:handle>", methods=['GET'])
 def data_messages(handle):
-  user_sender_handle = 'andrewbrown'
-  user_receiver_handle = request.args.get('user_reciever_handle')
+    user_sender_handle = 'andrewbrown'
+    user_receiver_handle = request.args.get('user_reciever_handle')
 
-  model = Messages.run(user_sender_handle=user_sender_handle, user_receiver_handle=user_receiver_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    model = Messages.run(user_sender_handle=user_sender_handle, user_receiver_handle=user_receiver_handle)
+    if model['errors'] is not None:
+        return model['errors'], 422
     return model['data'], 200
-  return
 
 @app.route("/api/messages", methods=['POST','OPTIONS'])
 @cross_origin()
 def data_create_message():
-  user_sender_handle = 'andrewbrown'
-  user_receiver_handle = request.json['user_receiver_handle']
-  message = request.json['message']
+    user_sender_handle = 'andrewbrown'
+    user_receiver_handle = request.json['user_receiver_handle']
+    message = request.json['message']
 
-  model = CreateMessage.run(message=message,user_sender_handle=user_sender_handle,user_receiver_handle=user_receiver_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    model = CreateMessage.run(message=message,user_sender_handle=user_sender_handle,user_receiver_handle=user_receiver_handle)
+    if model['errors'] is not None:
+        return model['errors'], 422
     return model['data'], 200
-  return
 
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
-  data = HomeActivities.run()
-  return data, 200
+    app.logger.debug(request.headers)
+    access_token = cognito_jwt_tocken.extract_access_token(request.headers)
+    try:
+        claims = cognito_jwt_tocken.verify(access_token)  #authenticated requests
+        app.logger.debug("authenticateed")
+        app.logger.debug(claims)
+        app.logger.debug(claims['username'])
+        data = HomeActivities.run(cognito_user_id=claims['username'])   
+    except TokenVerifyError as e:
+        #unauthenticateed requests
+        app.logger.debug("unauthenticateed")
+        app.logger.debug(e)
+    
+    #app.logger.debug("AUTH_HEADER----")
+    #app.logger.debug(request.headers.get('Authorization'))
+
+    #data = HomeActivities.run()
+    return data, 200
+    
+    
+
 
 @app.route("/api/activities/notifications", methods=['GET'])
 def data_notifications():
-  data = NotificationsActivities.run()
-  return data, 200  
+    data = NotificationsActivities.run()
+    return data, 200  
 
 @app.route("/api/activities/@<string:handle>", methods=['GET'])
 def data_handle(handle):
-  model = UserActivities.run(handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    model = UserActivities.run(handle)
+    if model['errors'] is not None:
+        return model['errors'], 422
     return model['data'], 200
 
 @app.route("/api/activities/search", methods=['GET'])
 def data_search():
-  term = request.args.get('term')
-  model = SearchActivities.run(term)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    term = request.args.get('term')
+    model = SearchActivities.run(term)
+    if model['errors'] is not None:
+        return model['errors'], 422
     return model['data'], 200
-  return
 
 @app.route("/api/activities", methods=['POST','OPTIONS'])
 @cross_origin()
 def data_activities():
-  user_handle  = 'andrewbrown'
-  message = request.json['message']
-  ttl = request.json['ttl']
-  model = CreateActivity.run(message, user_handle, ttl)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    user_handle  = 'andrewbrown'
+    message = request.json['message']
+    ttl = request.json['ttl']
+    model = CreateActivity.run(message, user_handle, ttl)
+    if model['errors'] is not None:
+        return model['errors'], 422
     return model['data'], 200
-  return
 
 @app.route("/api/activities/<string:activity_uuid>", methods=['GET'])
 def data_show_activity(activity_uuid):
-  data = ShowActivity.run(activity_uuid=activity_uuid)
-  return data, 200
+    data = ShowActivities.run(activity_uuid=activity_uuid)
+    return data, 200
 
 @app.route("/api/activities/<string:activity_uuid>/reply", methods=['POST','OPTIONS'])
 @cross_origin()
 def data_activities_reply(activity_uuid):
-  user_handle  = 'andrewbrown'
-  message = request.json['message']
-  model = CreateReply.run(message, user_handle, activity_uuid)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
+    user_handle  = 'andrewbrown'
+    message = request.json['message']
+    model = CreateReply.run(message, user_handle, activity_uuid)
+    if model['errors'] is not None:
+      return model['errors'], 422
     return model['data'], 200
-  return
 
 if __name__ == "__main__":
-  app.run(debug=True)
+    app.run(debug=True)
