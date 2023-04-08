@@ -30,7 +30,7 @@
 			]
 		}
 	},
-	"postCreateCommand": "pip3 install --user -r /workspaces/aws-bootcamp-cruddur-2023/backend-flask/requirements.txt"
+	"postCreateCommand": "/workspaces/aws-bootcamp-cruddur-2023/.devcontainer/postCreateCommand"
 
 	
 	// Features to add to the dev container. More info: https://containers.dev/features.
