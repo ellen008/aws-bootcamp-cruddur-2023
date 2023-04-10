@@ -50,17 +50,16 @@ class HomeActivities:
             }
             ]
             if cognito_user_id != None:
-              extra_crud = {
-                'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
-                'handle':  'Dr Seuss',
-                'message': 'Love yourself',
-                'created_at': (now - timedelta(hours=1)).isoformat(),
-                'expires_at': (now + timedelta(hours=12)).isoformat(),
-                'likes': 258,
-                'replies': []
-              }
-            else:
-              results.insert(0, extra_crud)
+                extra_crud = {
+                  'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
+                  'handle':  'Dr Seuss',
+                  'message': 'Love yourself',
+                  'created_at': (now - timedelta(hours=1)).isoformat(),
+                  'expires_at': (now + timedelta(hours=12)).isoformat(),
+                  'likes': 258,
+                  'replies': []
+                }
+                results.insert(0, extra_crud)
 
             span.set_attribute("app.results_length", len(results) ) 
             return results

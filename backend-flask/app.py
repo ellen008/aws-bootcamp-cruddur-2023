@@ -163,8 +163,12 @@ def data_create_message():
 
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
-    app.logger.debug(request.headers)
+    app.logger.debug("AUTH_HEADER----")
+    app.logger.debug(request.headers.get('Authorization'))
+
     access_token = cognito_jwt_tocken.extract_access_token(request.headers)
+    app.logger.debug("ACCESS_TOCKEN----")
+    app.logger.debug(access_token)
     try:
         claims = cognito_jwt_tocken.verify(access_token)  #authenticated requests
         app.logger.debug("authenticateed")
@@ -175,11 +179,7 @@ def data_home():
         #unauthenticateed requests
         app.logger.debug("unauthenticateed")
         app.logger.debug(e)
-    
-    #app.logger.debug("AUTH_HEADER----")
-    #app.logger.debug(request.headers.get('Authorization'))
-
-    #data = HomeActivities.run()
+        data = HomeActivities.run()
     return data, 200
     
     
