@@ -86,8 +86,8 @@ cognito_jwt_tocken = CognitoJWTTocken(
 #XRayMiddleware(app, xray_recorder)
 
 # Initialize automatic instrumentation with Flask
-FlaskInstrumentor().instrument_app(app)
-RequestsInstrumentor().instrument()
+#FlaskInstrumentor().instrument_app(app)
+#RequestsInstrumentor().instrument()
 
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
@@ -108,27 +108,27 @@ cors = CORS(
 
 
 #Rollbar
-rollbar_access_token = os.getenv('ROLLBAR_ACCESS_TOKEN')
-@app.before_first_request
-def init_rollbar():
-    """init rollbar module"""
-    rollbar.init(
+#rollbar_access_token = os.getenv('ROLLBAR_ACCESS_TOKEN')
+#@app.before_first_request
+#def init_rollbar():
+    #"""init rollbar module"""
+    #rollbar.init(
         # access token
-        rollbar_access_token,
+        #rollbar_access_token,
         # environment name
-        'production',
+        #'production',
         # server root directory, makes tracebacks prettier
-        root=os.path.dirname(os.path.realpath(__file__)),
+        #root=os.path.dirname(os.path.realpath(__file__)),
         # flask already sets up logging
-        allow_logging_basic_config=False)
+        #allow_logging_basic_config=False)
 
     # send exceptions from `app` to rollbar, using flask's signal system.
-    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
+    #got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
-@app.route('/rollbar/test')
-def rollbar_test():
-    rollbar.report_message('Hello World!', 'warning')
-    return "Hello World!"
+#@app.route('/rollbar/test')
+#def rollbar_test():
+    #rollbar.report_message('Hello World!', 'warning')
+    #return "Hello World!"
 
 
 @app.route("/api/message_groups", methods=['GET'])
@@ -179,7 +179,7 @@ def data_home():
     #app.logger.debug("AUTH_HEADER----")
     #app.logger.debug(request.headers.get('Authorization'))
 
-    #data = HomeActivities.run()
+    data = HomeActivities.run()
     return data, 200
     
     
