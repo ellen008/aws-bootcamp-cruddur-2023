@@ -26,7 +26,8 @@
 				"mhutchie.git-graph",
 				"mark-tucker.aws-cli-configure",
 				"ms-python.pylint",
-				"ms-ossdata.vscode-postgresql"
+				"ms-ossdata.vscode-postgresql",
+				"donjayamanne.githistory"
 			]
 		}
 	},
