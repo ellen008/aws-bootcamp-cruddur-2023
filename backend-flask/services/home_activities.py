@@ -17,18 +17,15 @@ class HomeActivities:
             sql=query_wrap_object("""
             SELECT * FROM activities
             """)
-
+            #print("----SQL-----")
             print(sql)
 
             with pool.connection() as conn:
                 with conn.cursor() as cur:
-                  cur.execute(sql)
-                  # this will return a tuple
-                  # the first field being the data
-                  json = cur.fetchone()
-            
-            print("----++++-----")
-            #print("----++++-----")
-
+                    cur.execute(sql)
+                    # this will return a tuple
+                    # the first field being the data
+                    json = cur.fetchone()
+            print("----++JSON++SQL+++-----")
             print(json[0])
             return json[0] 
