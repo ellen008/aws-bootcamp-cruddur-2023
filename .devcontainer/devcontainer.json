@@ -1,55 +1,64 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
 {
-	"name": "Cruddur Configuration",
+  "name": "Free AWS Cloud Bootcamp Development Environment",
+  "build": { "dockerfile": "Dockerfile" },  
 
-	// The 'service' property is the name of the service for the container that VS Code should
-	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
-	"service": "Cruddur",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
 
-	// The optional 'workspaceFolder' property is the path VS Code should open by default when
-	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"features": {
-		"ghcr.io/devcontainers/features/aws-cli:1": {
-			"version": "latest"
-		}
-	},
-	"remoteEnv": {
-		"AWS_CLI_AUTO_PROMPT": "on-partial"
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"ms-azuretools.vscode-docker",
-				"ms-python.python",
-				"mhutchie.git-graph",
-				"mark-tucker.aws-cli-configure",
-				"ms-python.pylint"
-			]
-		}
-	},
-	"postCreateCommand": "pip3 install --user -r /workspaces/aws-bootcamp-cruddur-2023/backend-flask/requirements.txt"
+  "forwardPorts": [3000, 4567, 2000],
 
-	
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+  "portsAttributes": {
+    "3000": {
+      "label": "Cruddur Frontend",
+      "onAutoForward": "notify"
+    },
+    "4567": {
+      "label": "Cruddur Backend",
+      "onAutoForward": "notify"
+    },
+    "2000": {
+      "label": "AWS X-Ray Daemon",
+      "onAutoForward": "notify"
+    }
+  },
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+  "customizations": {      
+    "vscode": {        
+      "extensions": [
+          "42Crunch.vscode-openapi",
+          "ms-azuretools.vscode-docker",
+          "ms-python.python",                                
+          "hashicorp.terraform",
+          "redhat.ansible",
+          "redhat.vscode-yaml",
+          "amazonwebservices.aws-toolkit-vscode"
+      ]
+    }
+  },     
+  
+  "settings": {
+		"terminal.integrated.profiles.linux": {
+			"bash": {
+				"path": "/usr/bin/bash",
+				"icon": "terminal-bash"
+			}
+		},
+		"terminal.integrated.defaultProfile.linux": "bash"
+	},	
+  
+  "containerEnv": {
+    "AWS_ACCESS_KEY_ID":      "${localEnv:AWS_ACCESS_KEY_ID}",
+    "AWS_ACCOUNT_ID":         "${localEnv:AWS_ACCOUNT_ID}",
+    "AWS_DEFAULT_REGION":     "${localEnv:AWS_DEFAULT_REGION}",
+    "AWS_SECRET_ACCESS_KEY":  "${localEnv:AWS_SECRET_ACCESS_KEY}",
+    "DOCKER_USERNAME":        "${localEnv:DOCKER_USERNAME}",
+    "DOCKER_PASSWORD":        "${localEnv:DOCKER_PASSWORD}",
+    "HONEYCOMB_API_KEY":      "${localEnv:HONEYCOMB_API_KEY}",
+    "ROLLBAR_ACCESS_TOKEN":   "${localEnv:ROLLBAR_ACCESS_TOKEN}"
+  },
+  
+  "remoteUser": "bootcamp",
 
-	// Uncomment the next line if you want start specific services in your Docker Compose config.
-	// "runServices": [],
-
-	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
-	// "shutdownAction": "none",
-
-	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "cat /etc/os-release",
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "devcontainer"
+  "postAttachCommand": "cd ./frontend-react-js && npm install && cd ../backend-flask && pip install -r requirements.txt"
 }
