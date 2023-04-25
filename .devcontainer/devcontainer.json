@@ -6,7 +6,7 @@
       "ghcr.io/devcontainers/features/docker-in-docker:2": {}
     },
   
-    "forwardPorts": [3000, 4567, 2000],
+    "forwardPorts": [3000, 4567, 2000, 5432],
   
     "portsAttributes": {
       "3000": {
@@ -19,6 +19,10 @@
       },
       "2000": {
         "label": "AWS X-Ray Daemon",
+        "onAutoForward": "notify"
+      },
+      "5432": {
+        "label": "Postgres",
         "onAutoForward": "notify"
       }
     },
