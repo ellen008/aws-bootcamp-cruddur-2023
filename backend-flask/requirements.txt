@@ -14,5 +14,3 @@ blinker
 rollbar
 
 flask-AWSCognito
-psycopg[binary]
-psycopg[pool]
